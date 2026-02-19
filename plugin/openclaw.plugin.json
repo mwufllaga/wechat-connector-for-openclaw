@@ -1,0 +1,14 @@
+{
+  "id": "wechat-tool",
+  "name": "WeChat Tool",
+  "version": "1.0.0",
+  "main": "index.js",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "openclaw": {
+    "minVersion": "2026.2.0"
+  }
+}

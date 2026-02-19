@@ -1,0 +1,12 @@
+# WeChat Connector 依赖
+
+# 标准库模块，无需额外安装
+# - subprocess
+# - re
+# - os
+# - json
+# - time
+# - argparse
+# - datetime
+# - dataclasses
+# - typing

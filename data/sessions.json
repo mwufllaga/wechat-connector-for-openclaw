@@ -1,0 +1,29 @@
+{
+  "Mwu！": {
+    "conversation_id": "Mwu！",
+    "conversation_name": "Mwu！",
+    "session_key": "hook:wechat:Mwu！",
+    "window_title": "Mwu！",
+    "is_group": false,
+    "created_at": "2026-02-19T13:57:35.847436",
+    "last_active": "2026-02-19T14:47:54.918906"
+  },
+  "wxid_qd7ysbn510s512": {
+    "conversation_id": "wxid_qd7ysbn510s512",
+    "conversation_name": "Mwu！",
+    "session_key": "hook:wechat:wxid_qd7ysbn510s512",
+    "window_title": "Mwu！",
+    "is_group": false,
+    "created_at": "2026-02-19T14:06:07.037661",
+    "last_active": "2026-02-19T14:43:12.306097"
+  },
+  "wxid_test": {
+    "conversation_id": "wxid_test",
+    "conversation_name": "Mwu！",
+    "session_key": "hook:wechat:wxid_test",
+    "window_title": "Mwu！",
+    "is_group": false,
+    "created_at": "2026-02-19T14:33:33.506250",
+    "last_active": "2026-02-19T14:33:33.506366"
+  }
+}

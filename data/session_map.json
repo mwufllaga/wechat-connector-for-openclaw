@@ -1,0 +1,16 @@
+{
+  "private_mwu": {
+    "conversation_id": "Mwu！",
+    "session_key": "hook:wechat:private_mwu",
+    "window_title": "Mwu！",
+    "is_group": false,
+    "chat_name": "Mwu！"
+  },
+  "group_mwulili": {
+    "conversation_id": "群聊",
+    "session_key": "hook:wechat:group_mwulili",
+    "window_title": "Mwu!、栗ちゃん",
+    "is_group": true,
+    "chat_name": "Mwu!、栗ちゃん"
+  }
+}

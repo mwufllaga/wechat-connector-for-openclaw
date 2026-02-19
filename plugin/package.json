@@ -1,0 +1,6 @@
+{
+  "name": "wechat-tool",
+  "version": "1.0.0",
+  "description": "WeChat message sending tool for OpenClaw",
+  "main": "index.js"
+}
