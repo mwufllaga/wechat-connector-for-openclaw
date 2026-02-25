@@ -128,9 +128,24 @@ cp plugin/* ~/.openclaw/extensions/wechat-tool/
 
 ### 3. 推送脚本到 Android 设备
 
-**如果是模拟器（MuMu/雷电）：**
+**如果是 MuMu 模拟器（推荐）：**
 ```bash
-# 连接模拟器（MuMu 默认端口 5555）
+# 添加 MuMu 的 adb 到 PATH
+export PATH="/Applications/MuMuPlayer.app/Contents/MacOS/MuMuEmulator.app/Contents/MacOS/tools:$PATH"
+
+# 连接模拟器（MuMu 默认端口 16384）
+adb connect 127.0.0.1:16384
+
+# 推送脚本
+adb -s 127.0.0.1:16384 push wechat_listener.sh /data/local/tmp/
+
+# 赋予执行权限
+adb -s 127.0.0.1:16384 shell chmod +x /data/local/tmp/wechat_listener.sh
+```
+
+**如果是其他模拟器（雷电等）：**
+```bash
+# 连接模拟器（雷电默认端口 5555）
 adb connect 127.0.0.1:5555
 
 # 推送脚本
@@ -174,13 +189,22 @@ chat_name="group_with_AI"  # 改成你的实际群名称
 
 ### 启动 Android 端监听
 
+**推荐方法（MuMu 模拟器）：**
 ```bash
-# 进入 Android shell
-adb shell
+# 添加 adb 到 PATH 并直接运行脚本
+export PATH="/Applications/MuMuPlayer.app/Contents/MacOS/MuMuEmulator.app/Contents/MacOS/tools:$PATH" && adb -s 127.0.0.1:16384 shell "sh /data/local/tmp/wechat_listener.sh"
+```
 
-# 运行脚本
+**其他方法：**
+
+```bash
+# 方法1：先进入 Android shell 再运行
+adb shell
 cd /data/local/tmp
 ./wechat_listener.sh
+
+# 方法2：直接执行（通用）
+adb shell sh /data/local/tmp/wechat_listener.sh
 ```
 
 看到以下输出表示成功：
@@ -190,22 +214,24 @@ cd /data/local/tmp
 
 ### 后台运行
 
+**推荐方法（MuMu 模拟器）：**
 ```bash
-# 在 Android shell 中
-nohup ./wechat_listener.sh > /data/local/tmp/wechat_listener.log 2>&1 &
+export PATH="/Applications/MuMuPlayer.app/Contents/MacOS/MuMuEmulator.app/Contents/MacOS/tools:$PATH" && adb -s 127.0.0.1:16384 shell "nohup sh /data/local/tmp/wechat_listener.sh > /data/local/tmp/wechat_listener.log 2>&1 &"
+```
 
-# 查看日志
-tail -f /data/local/tmp/wechat_listener.log
+**查看日志：**
+```bash
+export PATH="/Applications/MuMuPlayer.app/Contents/MacOS/MuMuEmulator.app/Contents/MacOS/tools:$PATH" && adb -s 127.0.0.1:16384 shell "tail -f /data/local/tmp/wechat_listener.log"
 ```
 
 ### 停止监听
 
 ```bash
 # 查找进程
-ps | grep wechat_listener
+adb shell ps | grep wechat_listener
 
-# 结束进程
-kill <PID>
+# 结束进程（替换 <PID> 为实际进程号）
+adb shell kill <PID>
 ```
 
 ## 消息格式
@@ -248,7 +274,8 @@ send_wechat_message(target="group_with_AI", content="回复内容")
 ### 没有新消息
 - 检查微信是否有通知权限（设置 → 通知管理 → 微信 → 允许通知）
 - 检查微信是否在后台运行（锁定后台，避免被系统清理）
-- 查看日志：`tail -f /data/local/tmp/wechat_notifications.log`
+- 检查监听器是否正常运行：`adb shell ps | grep wechat_listener`
+- 查看日志：`adb shell tail -f /data/local/tmp/wechat_notifications.log`
 
 ### Webhook 发送失败
 ```
