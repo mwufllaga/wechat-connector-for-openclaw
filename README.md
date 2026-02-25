@@ -1,32 +1,47 @@
-# WeChat Listener for OpenClaw
+# WeChat Connector for OpenClaw
 
 让 AI 能够通过微信与外界沟通的桥梁（Android 通知监听版）。
 
 ## 工作原理
 
+### 整体架构
+
 ```
+接收消息：
 ┌─────────────┐     通知监听    ┌─────────────┐     Webhook    ┌─────────────┐
 │  微信APP    │ ──────────────→ │  Listener   │ ─────────────→ │   OpenClaw  │
-│ (Android)   │  cmd notification│  (本脚本)    │  发送消息      │   (AI助手)   │
+│ (Android)   │  cmd notification│ (Android端) │  发送消息      │   (AI助手)   │
 └─────────────┘              └─────────────┘                └─────────────┘
                                                                    ↓
                                                             收到微信消息
                                                             用 Tool 回复
+
+发送消息：
+┌─────────────┐     AppleScript   ┌─────────────┐
+│  OpenClaw   │ ────────────────→ │  macOS微信   │
+│  (AI回复)   │   操作微信客户端   │  (桌面端)    │
+└─────────────┘                 └─────────────┘
 ```
 
+**说明：**
+- **接收**：Android 设备运行 `wechat_listener.sh` 监听通知，推送到 OpenClaw
+- **发送**：Mac 端运行 `sender.py` 通过 AppleScript 操作 macOS 微信客户端发送消息
+
 **相比旧版的优势：**
-- ✅ 无需 ADB 连接
+- ✅ 无需 ADB 持续连接
 - ✅ 无需读取 MMKV 文件
-- ✅ 无需模拟器
-- ✅ 无需 root 权限（普通 shell 即可）
-- ✅ 支持真机和模拟器
+- ✅ 无需模拟器（支持真机）
+- ✅ Android 端无需 root 权限
 - ✅ 更简单稳定
 
 ## 前置条件
 
 ### 1. 硬件/环境
-- **Android 设备**：真机或模拟器（MuMu、雷电等）
-- **微信**：安装并登录
+- **Android 设备**：真机或模拟器（MuMu、雷电等），用于接收微信消息
+- **macOS 电脑**：用于运行 OpenClaw 和发送微信消息
+- **微信**：
+  - Android 端：登录用于接收消息
+  - macOS 端：登录用于发送消息（可与 Android 同时在线）
 - **网络**：Android 设备需要能访问 OpenClaw 所在机器
 
 ### 2. 网络配置
@@ -75,7 +90,34 @@ git clone https://github.com/mwufllaga/wech--connector-for-openclaw.git
 cd wech--connector-for-openclaw
 ```
 
-### 2. 推送脚本到 Android 设备
+### 2. 配置 Mac 端发送器（sender.py）
+
+Mac 端使用 `sender.py` 通过 AppleScript 操作 macOS 微信客户端发送消息。
+
+**前置条件：**
+- macOS 微信已安装并登录
+- Python 3 已安装
+
+**配置步骤：**
+
+1. 测试 sender.py：
+```bash
+# 测试发送消息到私聊
+python3 src/sender.py 'Mwu！' '测试消息'
+
+# 测试发送消息到群聊
+python3 src/sender.py 'group_with_AI' '群聊测试'
+```
+
+2. 在 OpenClaw 中配置 `send_wechat_message` tool：
+   - 将 `src/sender.py` 注册为 OpenClaw 的 tool
+   - 确保 AI 可以通过 tool 调用发送消息
+
+**注意：**
+- 发送消息时 macOS 微信窗口必须在屏幕上可见
+- 窗口名称必须与脚本中的 target 参数完全一致
+
+### 3. 推送脚本到 Android 设备
 
 **如果是模拟器（MuMu/雷电）：**
 ```bash
@@ -100,7 +142,7 @@ adb push wechat_listener.sh /data/local/tmp/
 adb shell chmod +x /data/local/tmp/wechat_listener.sh
 ```
 
-### 3. 配置修改（可选）
+### 4. 配置修改（可选）
 
 编辑 `wechat_listener.sh`，根据你的环境修改：
 
@@ -121,7 +163,7 @@ chat_name="group_with_AI"  # 改成你的实际群名称
 
 ## 使用方法
 
-### 启动监听
+### 启动 Android 端监听
 
 ```bash
 # 进入 Android shell
@@ -208,29 +250,42 @@ send_wechat_message(target="group_with_AI", content="回复内容")
 - 检查防火墙/路由器是否阻挡端口 18789
 
 ### 消息发送失败
-- 检查 `send_wechat_message` tool 是否正确配置
-- 检查 target 名称是否与消息来源一致
+- 检查 macOS 微信是否已登录且窗口可见
+- 检查 `src/sender.py` 是否能正常运行：`python3 src/sender.py 'Mwu！' '测试消息'`
+- 检查 target 名称是否与微信聊天窗口名称完全一致（包括空格、标点）
 
 ## 文件说明
 
 | 文件 | 说明 |
 |------|------|
-| `wechat_listener.sh` | 主脚本，监听通知并发送 webhook |
+| `wechat_listener.sh` | Android 端脚本，监听通知并发送 webhook 到 OpenClaw |
+| `src/sender.py` | Mac 端脚本，通过 AppleScript 操作 macOS 微信发送消息 |
 | `README.md` | 本文档 |
 
 ## 注意事项
 
-1. **通知权限**：微信必须有通知权限，否则无法监听到消息
-2. **后台运行**：微信需要在后台保持运行，建议锁定后台
-3. **电池优化**：建议关闭微信的电池优化，避免被系统清理
-4. **网络**：确保 Android 设备能访问 OpenClaw 所在机器的 18789 端口
-5. **去重**：相同内容的消息不会重复处理，如需测试请发送不同内容
+1. **双端登录**：
+   - Android 端微信用于接收消息（通过通知监听）
+   - macOS 端微信用于发送消息（通过 AppleScript 操作）
+   - 两个客户端可以同时登录同一账号
+
+2. **通知权限**：Android 微信必须有通知权限，否则无法监听到消息
+
+3. **后台运行**：Android 微信需要在后台保持运行，建议锁定后台
+
+4. **电池优化**：建议关闭 Android 微信的电池优化，避免被系统清理
+
+5. **网络**：确保 Android 设备能访问 OpenClaw 所在机器的 18789 端口
+
+6. **去重**：相同内容的消息不会重复处理，如需测试请发送不同内容
+
+7. **Mac 微信窗口**：发送消息时 macOS 微信窗口必须在屏幕上可见，不能最小化
 
 ## 版本历史
 
 ### 2.0 (2026-02-25)
 - 全新架构：基于 Android 通知监听
-- 移除 ADB、MMKV、模拟器依赖
+- 移除 ADB 持续连接、MMKV 读取依赖
 - 支持真机和模拟器
 - 更简单的部署流程
 
