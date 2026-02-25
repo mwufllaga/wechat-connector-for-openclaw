@@ -109,13 +109,22 @@ python3 src/sender.py 'Mwu！' '测试消息'
 python3 src/sender.py 'group_with_AI' '群聊测试'
 ```
 
-2. 在 OpenClaw 中配置 `send_wechat_message` tool：
-   - 将 `src/sender.py` 注册为 OpenClaw 的 tool
-   - 确保 AI 可以通过 tool 调用发送消息
+2. 安装 OpenClaw Plugin：
+
+```bash
+# 创建 OpenClaw 插件目录
+mkdir -p ~/.openclaw/extensions/wechat-tool
+
+# 复制插件文件
+cp plugin/* ~/.openclaw/extensions/wechat-tool/
+```
+
+3. 重启 OpenClaw 加载插件
 
 **注意：**
 - 发送消息时 macOS 微信窗口必须在屏幕上可见
 - 窗口名称必须与脚本中的 target 参数完全一致
+- Plugin 会通过 `send_wechat_message` tool 调用 sender.py 发送消息
 
 ### 3. 推送脚本到 Android 设备
 
@@ -260,6 +269,9 @@ send_wechat_message(target="group_with_AI", content="回复内容")
 |------|------|
 | `wechat_listener.sh` | Android 端脚本，监听通知并发送 webhook 到 OpenClaw |
 | `src/sender.py` | Mac 端脚本，通过 AppleScript 操作 macOS 微信发送消息 |
+| `plugin/index.js` | OpenClaw 插件，注册 `send_wechat_message` tool |
+| `plugin/openclaw.plugin.json` | OpenClaw 插件配置 |
+| `plugin/package.json` | 插件包信息 |
 | `README.md` | 本文档 |
 
 ## 注意事项
